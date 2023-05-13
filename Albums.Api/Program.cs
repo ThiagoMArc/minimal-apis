@@ -23,18 +23,27 @@ app.MapGet("v1/albums/{pageSize}/{pageIndex}", (AppDbContext dbContext, int page
 {
     IQueryable<Album> albums = dbContext.Albums.AsQueryable();
     PagedList<Album> albumsPaged = PagedList<Album>.ToPagedList(albums, pageIndex, pageSize);
-    
-    Result result = new Result(true, 
-                             "Dados encontrados com sucesso", 
-                             new 
+
+    object metadaData = new
+    {
+        currentPage = albumsPaged.CurrentPage,
+        totalPages = albumsPaged.TotalPages,
+        pageSize = albumsPaged.PageSize,
+        totalCount = albumsPaged.TotalCount,
+        hasNextPage = albumsPaged.HasNext
+    };
+
+    Result result = new Result(true,
+                             "Dados encontrados com sucesso",
+                             new
                              {
-                                currentPage = albumsPaged.CurrentPage,
-                                totalPages = albumsPaged.TotalPages,
-                                pageSize = albumsPaged.PageSize,
-                                totalCount = albumsPaged.TotalCount,
-                                result = albumsPaged 
-                             }); 
-    
+                                 currentPage = albumsPaged.CurrentPage,
+                                 totalPages = albumsPaged.TotalPages,
+                                 pageSize = albumsPaged.PageSize,
+                                 totalCount = albumsPaged.TotalCount,
+                                 result = albumsPaged
+                             });
+
     return Results.Ok(result);
 })
 .WithName("GetAlbums")
@@ -57,6 +66,39 @@ app.MapGet("v1/album/{id}", async (AppDbContext dbContext, Guid id) =>
 .Produces<Album>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
+app.MapPost("v1/album/filter", async (AppDbContext dbContext, AlbumFilterViewModel albumFilter) =>
+{
+    Func<Album, bool>? predicate = null;
+
+    if (albumFilter != null)
+    {
+        if (!string.IsNullOrEmpty(albumFilter.Artist))
+        {
+            predicate = a => a.Artist == albumFilter.Artist;
+        }
+
+        if (!string.IsNullOrEmpty(albumFilter.Title))
+        {
+            predicate = predicate + (a => a.Title == albumFilter.Title);
+        }
+
+        if (albumFilter.Year != null)
+        {
+            predicate = predicate + (a => a.Year == albumFilter.Year);
+        }
+    }
+
+    IEnumerable<Album>? result = predicate != null ? dbContext.Albums.Where(predicate) :
+                                     dbContext.Albums.ToList();
+
+    return Results.Ok(new Result(true, "Busca realizada com sucesso", result));
+})
+.WithName("FilterAlbum")
+.WithOpenApi(operation => new(operation)
+{
+    Description = "Filter an Album"
+})
+.Produces<Album>(StatusCodes.Status200OK);
 
 app.MapPost("v1/album", async (AppDbContext dbContext, AlbumViewModel albumViewModel) =>
 {
@@ -75,15 +117,15 @@ app.MapPost("v1/album", async (AppDbContext dbContext, AlbumViewModel albumViewM
 {
     Description = "Register an Album"
 })
-.Produces<Album>(StatusCodes.Status201Created); ;
+.Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
   async (AppDbContext dbContext, AlbumViewModel albumViewModel, Guid id) =>
   {
-     albumViewModel.Validate();
+      albumViewModel.Validate();
 
-     if(!albumViewModel.IsValid)
-        return Results.BadRequest();
+      if (!albumViewModel.IsValid)
+          return Results.BadRequest();
 
       Album? album = await dbContext.Albums.FindAsync(id);
 

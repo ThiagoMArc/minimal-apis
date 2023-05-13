@@ -1,4 +1,6 @@
 using Albums.Api.Data;
+using Albums.Api.Models;
+using Albums.Api.Utils;
 using Albums.Api.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +19,23 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.MapGet("v1/albums", (AppDbContext dbContext) =>
+app.MapGet("v1/albums/{pageSize}/{pageIndex}", (AppDbContext dbContext, int pageSize, int pageIndex) =>
 {
-    List<Album> albums = dbContext.Albums.ToList();
-    return Results.Ok(albums);
+    IQueryable<Album> albums = dbContext.Albums.AsQueryable();
+    PagedList<Album> albumsPaged = PagedList<Album>.ToPagedList(albums, pageIndex, pageSize);
+    
+    Result result = new Result(true, 
+                             "Dados encontrados com sucesso", 
+                             new 
+                             {
+                                currentPage = albumsPaged.CurrentPage,
+                                totalPages = albumsPaged.TotalPages,
+                                pageSize = albumsPaged.PageSize,
+                                totalCount = albumsPaged.TotalCount,
+                                result = albumsPaged 
+                             }); 
+    
+    return Results.Ok(result);
 })
 .WithName("GetAlbums")
 .WithOpenApi(operation => new(operation)
@@ -32,7 +47,7 @@ app.MapGet("v1/albums", (AppDbContext dbContext) =>
 app.MapGet("v1/album/{id}", async (AppDbContext dbContext, Guid id) =>
 {
     return await dbContext.Albums.FindAsync(id) is Album album ?
-        Results.Ok(album) : Results.NotFound();
+        Results.Ok(new Result(true, "Registro encontrado com sucesso", album)) : Results.NotFound();
 })
 .WithName("GetAlbumById")
 .WithOpenApi(operation => new(operation)
@@ -53,7 +68,7 @@ app.MapPost("v1/album", async (AppDbContext dbContext, AlbumViewModel albumViewM
     dbContext.Albums.Add(album);
     await dbContext.SaveChangesAsync();
 
-    return Results.Created($"v1/album/{album.Id}", album);
+    return Results.Created($"v1/album/{album.Id}", new Result(true, "Registro criado com sucesso", album));
 })
 .WithName("CreateAlbum")
 .WithOpenApi(operation => new(operation)
@@ -83,7 +98,7 @@ app.MapPut("v1/album/{id}",
 
       await dbContext.SaveChangesAsync();
 
-      return Results.Ok(album);
+      return Results.Ok(new Result(true, "Registro atualizado com sucesso", album));
   })
 .WithName("UpdateAlbum")
 .WithOpenApi(operation => new(operation)

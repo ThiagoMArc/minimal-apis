@@ -24,25 +24,16 @@ app.MapGet("v1/albums/{pageSize}/{pageIndex}", (AppDbContext dbContext, int page
     IQueryable<Album> albums = dbContext.Albums.AsQueryable();
     PagedList<Album> albumsPaged = PagedList<Album>.ToPagedList(albums, pageIndex, pageSize);
 
-    object metadaData = new
-    {
-        currentPage = albumsPaged.CurrentPage,
-        totalPages = albumsPaged.TotalPages,
-        pageSize = albumsPaged.PageSize,
-        totalCount = albumsPaged.TotalCount,
-        hasNextPage = albumsPaged.HasNext
-    };
-
-    Result result = new Result(true,
-                             "Dados encontrados com sucesso",
-                             new
-                             {
-                                 currentPage = albumsPaged.CurrentPage,
-                                 totalPages = albumsPaged.TotalPages,
-                                 pageSize = albumsPaged.PageSize,
-                                 totalCount = albumsPaged.TotalCount,
-                                 result = albumsPaged
-                             });
+    Result result = new(true,
+                        "Dados encontrados com sucesso",
+                        new
+                        {
+                            currentPage = albumsPaged.CurrentPage,
+                            totalPages = albumsPaged.TotalPages,
+                            pageSize = albumsPaged.PageSize,
+                            totalCount = albumsPaged.TotalCount,
+                            result = albumsPaged
+                        });
 
     return Results.Ok(result);
 })

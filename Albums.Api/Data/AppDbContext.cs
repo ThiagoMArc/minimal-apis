@@ -1,11 +1,16 @@
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace Albums.Api.Data;
 
-public class AppDbContext :DbContext
+public class AppDbContext : IAppDbContext
 {
-    public DbSet<Album> Albums { get; set; }  
+    private readonly IMongoDatabase _database;
+    
+    public AppDbContext(string connectionString, string databaseName)
+    {
+        var client = new MongoClient(connectionString);
+        _database = client.GetDatabase(databaseName);
+    }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder options)
-         => options.UseSqlite("DataSource=app.db;Cache=Shared"); 
+    public IMongoCollection<Album> Albums => _database.GetCollection<Album>("albums");
 }

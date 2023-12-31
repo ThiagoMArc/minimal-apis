@@ -1,7 +1,18 @@
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
 public class Album 
 {
-    public Guid Id {get; set;} 
-    public string Title {get; set;} 
-    public string Artist {get; set;}
+    [BsonId]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Id {get; set;} = "";
+
+    [BsonElement("title")]
+    public string Title {get; set;} = "";
+
+    [BsonElement("artist")] 
+    public string Artist {get; set;} = "";
+
+    [BsonElement("year")]
     public int Year {get; set;}
 }

@@ -16,9 +16,8 @@ public class AlbumViewModel : Notifiable<Notification>
         
         return new Album
         {
-            Id = Guid.NewGuid(), 
-            Title = Title, 
-            Artist = Artist, 
+            Title = Title,
+            Artist = Artist,
             Year = Year
         };
     }

@@ -1,3 +1,4 @@
+using Albums.Api.Models;
 using Flunt.Notifications;
 using Flunt.Validations;
 

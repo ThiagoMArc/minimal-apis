@@ -55,7 +55,7 @@ app.MapGet("v1/album/{id}", async (AppDbContext dbContext, Guid id) =>
 .Produces<Album>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
-app.MapPost("v1/album/filter", async (AppDbContext dbContext, AlbumFilterViewModel albumFilter) =>
+app.MapPost("v1/album/info", async (AppDbContext dbContext, AlbumFilterViewModel albumFilter) =>
 {
     Func<Album, bool>? predicate = null;
 
@@ -85,7 +85,7 @@ app.MapPost("v1/album/filter", async (AppDbContext dbContext, AlbumFilterViewMod
 .WithName("FilterAlbum")
 .WithOpenApi(operation => new(operation)
 {
-    Description = "Filter an Album"
+    Description = "Filter Albums by their infos"
 })
 .Produces<Album>(StatusCodes.Status200OK);
 

@@ -1,3 +1,5 @@
+namespace Albums.Api.Models;
+
 public class Album 
 {
     public Guid Id {get; set;} 

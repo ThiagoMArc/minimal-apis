@@ -1,5 +1,4 @@
 using Albums.Api.Data;
-using Microsoft.Extensions.Options;
 
 namespace Albums.Api.Configuration;
 public static class DependencyInjectionConfig

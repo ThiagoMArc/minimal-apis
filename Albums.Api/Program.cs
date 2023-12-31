@@ -17,9 +17,9 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.MapGet("v1/albums/{pageSize}/{pageIndex}", (AppDbContext dbContext, int pageSize, int pageIndex) =>
+app.MapGet("v1/albums/{pageSize}/{pageIndex}", (IAlbumRepository repo, int pageSize, int pageIndex) =>
 {
-    IQueryable<Album> albums = dbContext.Albums.AsQueryable();
+    IQueryable<Album> albums = repo.GetAll();
     PagedList<Album> albumsPaged = PagedList<Album>.ToPagedList(albums, pageIndex, pageSize);
 
     Result result = new(true,
@@ -55,7 +55,7 @@ app.MapGet("v1/album/{id}", async (AppDbContext dbContext, Guid id) =>
 .Produces<Album>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
-app.MapPost("v1/album/info", async (AppDbContext dbContext, AlbumFilterViewModel albumFilter) =>
+app.MapPost("v1/album/info", async (IAlbumRepository repo, AlbumFilterViewModel albumFilter) =>
 {
     Func<Album, bool>? predicate = null;
 
@@ -63,12 +63,12 @@ app.MapPost("v1/album/info", async (AppDbContext dbContext, AlbumFilterViewModel
     {
         if (!string.IsNullOrEmpty(albumFilter.Artist))
         {
-            predicate = a => a.Artist == albumFilter.Artist;
+            predicate = a => a.Artist.ToLowerInvariant() == albumFilter.Artist.ToLowerInvariant();
         }
 
         if (!string.IsNullOrEmpty(albumFilter.Title))
         {
-            predicate = predicate + (a => a.Title == albumFilter.Title);
+            predicate = predicate + (a => a.Title.ToLowerInvariant() == albumFilter.Title.ToLowerInvariant());
         }
 
         if (albumFilter.Year != null)
@@ -77,8 +77,8 @@ app.MapPost("v1/album/info", async (AppDbContext dbContext, AlbumFilterViewModel
         }
     }
 
-    IEnumerable<Album>? result = predicate != null ? dbContext.Albums.Where(predicate) :
-                                     dbContext.Albums.ToList();
+    IEnumerable<Album>? result = predicate != null ? repo.Where(predicate) :
+                                     repo.GetAll().AsEnumerable();
 
     return Results.Ok(new Result(true, "Busca realizada com sucesso", result));
 })
@@ -89,15 +89,15 @@ app.MapPost("v1/album/info", async (AppDbContext dbContext, AlbumFilterViewModel
 })
 .Produces<Album>(StatusCodes.Status200OK);
 
-app.MapPost("v1/album", async (AppDbContext dbContext, AlbumViewModel albumViewModel) =>
+app.MapPost("v1/album", async (IAlbumRepository repo, AlbumViewModel albumViewModel) =>
 {
     if (!albumViewModel.IsValid)
         return Results.BadRequest(albumViewModel.Notifications);
 
     Album album = albumViewModel.ToEntity();
 
-    dbContext.Albums.Add(album);
-    await dbContext.SaveChangesAsync();
+    repo.Add(album);
+    await repo.SaveChangesAsync();
 
     return Results.Created($"v1/album/{album.Id}", new Result(true, "Registro criado com sucesso", album));
 })
@@ -109,14 +109,14 @@ app.MapPost("v1/album", async (AppDbContext dbContext, AlbumViewModel albumViewM
 .Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
-  async (AppDbContext dbContext, AlbumViewModel albumViewModel, Guid id) =>
+  async (IAlbumRepository repo, AlbumViewModel albumViewModel, Guid id) =>
   {
       albumViewModel.Validate();
 
       if (!albumViewModel.IsValid)
           return Results.BadRequest();
 
-      Album? album = await dbContext.Albums.FindAsync(id);
+      Album? album = await repo.GetByIdAsync(id);
 
       if (album is null)
           return Results.NotFound();
@@ -125,9 +125,9 @@ app.MapPut("v1/album/{id}",
       album.Artist = albumViewModel.Artist;
       album.Year = albumViewModel.Year;
 
-      dbContext.Albums.Update(album);
+      repo.Update(album);
 
-      await dbContext.SaveChangesAsync();
+      await repo.SaveChangesAsync();
 
       return Results.Ok(new Result(true, "Registro atualizado com sucesso", album));
   })
@@ -140,15 +140,15 @@ app.MapPut("v1/album/{id}",
 .Produces(StatusCodes.Status404NotFound)
 .Produces(StatusCodes.Status400BadRequest);
 
-app.MapDelete("v1/album/{id}", async (AppDbContext dbContext, Guid id) =>
+app.MapDelete("v1/album/{id}", async (IAlbumRepository repo, Guid id) =>
 {
-    Album? album = await dbContext.Albums.FindAsync(id);
+    Album? album = await repo.GetByIdAsync(id);
 
     if (album is null)
         return Results.NotFound();
 
-    dbContext.Albums.Remove(album);
-    await dbContext.SaveChangesAsync();
+    repo.Delete(album);
+    await repo.SaveChangesAsync();
 
     return Results.Ok();
 })

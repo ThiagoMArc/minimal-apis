@@ -6,6 +6,8 @@ public static class DependencyInjectionConfig
     public static IServiceCollection ResolveDependencies(this WebApplicationBuilder builder)
     {
         ConfigureDatabase(builder);
+        InjectContext(builder);
+        InjectRepositories(builder);
         AddDatabaseDeveloperPageExceptionFilter(builder);
         ConfigureSwagger(builder);
 
@@ -15,6 +17,16 @@ public static class DependencyInjectionConfig
     private static void ConfigureDatabase(WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<AppDbContext>();
+    }
+
+    private static void InjectContext(WebApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton<IAppDbContext, AppDbContext>();
+    }
+
+    private static void InjectRepositories(WebApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton<IAlbumRepository, AlbumRepository>();
     }
 
     private static void AddDatabaseDeveloperPageExceptionFilter(WebApplicationBuilder builder)

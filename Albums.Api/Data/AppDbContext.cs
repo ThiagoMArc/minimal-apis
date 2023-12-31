@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Albums.Api.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<Album> Albums { get; set; }  
 

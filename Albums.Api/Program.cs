@@ -1,14 +1,12 @@
+using Albums.Api.Configuration;
 using Albums.Api.Data;
 using Albums.Api.Models;
 using Albums.Api.Utils;
 using Albums.Api.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.ResolveDependencies();
 
 var app = builder.Build();
 

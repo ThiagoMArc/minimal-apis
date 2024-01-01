@@ -20,7 +20,7 @@ if (app.Environment.IsDevelopment())
 }
 
 
-app.MapGet("v1/albums/{pageSize}/{pageIndex}", async ([FromServices] IAlbumRepository repo, int pageSize, int pageIndex) =>
+app.MapGet("v1/albums/{pageSize}/{pageIndex}", async (IAlbumRepository repo, int pageSize, int pageIndex) =>
 {
     IQueryable<Album>? albums = (await repo.GetAll()).AsQueryable();
     PagedList<Album> albumsPaged = PagedList<Album>.ToPagedList(albums, pageIndex, pageSize);
@@ -45,7 +45,7 @@ app.MapGet("v1/albums/{pageSize}/{pageIndex}", async ([FromServices] IAlbumRepos
 })
 .Produces<List<Album>>(StatusCodes.Status200OK);
 
-app.MapGet("v1/album/{id}", async ([FromServices]IAlbumRepository repo, string id) =>
+app.MapGet("v1/album/{id}", async (IAlbumRepository repo, string id) =>
 {
     return await repo.GetById(id) is Album album ?
         Results.Ok(new Result(true, "Registro encontrado com sucesso", album)) : 
@@ -59,7 +59,7 @@ app.MapGet("v1/album/{id}", async ([FromServices]IAlbumRepository repo, string i
 .Produces<Album>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound);
 
-app.MapPost("v1/album/filter", async ([FromServices]IAlbumRepository repo, [FromBody]AlbumFilterViewModel albumFilter) =>
+app.MapPost("v1/album/infos", async (IAlbumRepository repo, [FromBody]AlbumFilterViewModel albumFilter) =>
 {
     FilterDefinitionBuilder<Album> builder = Builders<Album>.Filter;
     FilterDefinition<Album> filter = FilterDefinition<Album>.Empty; 
@@ -97,7 +97,7 @@ app.MapPost("v1/album/filter", async ([FromServices]IAlbumRepository repo, [From
 })
 .Produces<Album>(StatusCodes.Status200OK);
 
-app.MapPost("v1/album", async ([FromServices] IAlbumRepository repo, [FromBody] AlbumViewModel albumViewModel) =>
+app.MapPost("v1/album", async (IAlbumRepository repo, [FromBody] AlbumViewModel albumViewModel) =>
 {
     albumViewModel.Validate();
 
@@ -118,7 +118,7 @@ app.MapPost("v1/album", async ([FromServices] IAlbumRepository repo, [FromBody] 
 .Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
-  async ([FromServices]IAlbumRepository repo, [FromBody] AlbumViewModel albumViewModel, string id) =>
+  async (IAlbumRepository repo, [FromBody] AlbumViewModel albumViewModel, string id) =>
   {
       albumViewModel.Validate();
 
@@ -147,7 +147,7 @@ app.MapPut("v1/album/{id}",
 .Produces(StatusCodes.Status404NotFound)
 .Produces(StatusCodes.Status400BadRequest);
 
-app.MapDelete("v1/album/{id}", async ([FromServices]IAlbumRepository repo, string id) =>
+app.MapDelete("v1/album/{id}", async (IAlbumRepository repo, string id) =>
 {
     Album? album = await repo.GetById(id);
 

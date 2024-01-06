@@ -5,8 +5,14 @@ namespace Albums.Api.Data;
 
 public class AppDbContext : DbContext, IAppDbContext
 {
+    private string _dbConn = "";
     public DbSet<Album> Albums { get; set; }  
 
+    public AppDbContext(string connection)
+    {
+        _dbConn = connection;
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
-         => options.UseSqlite("DataSource=app.db;Cache=Shared"); 
+         => options.UseNpgsql(_dbConn); 
 }

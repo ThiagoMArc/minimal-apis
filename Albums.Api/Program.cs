@@ -124,6 +124,7 @@ app.MapPut("v1/album/{id}",
       album.Title = albumViewModel.Title;
       album.Artist = albumViewModel.Artist;
       album.Year = albumViewModel.Year;
+      album.Tracklist = albumViewModel.TrackList;
 
       repo.Update(album);
 

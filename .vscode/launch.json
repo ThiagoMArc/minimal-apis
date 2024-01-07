@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/Albums.Api/bin/Debug/net7.0/Albums.Api.dll",
+            "program": "${workspaceFolder}/Albums.Api/bin/Debug/net8.0/Albums.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Albums.Api",
             "stopAtEntry": false,

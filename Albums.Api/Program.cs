@@ -62,19 +62,13 @@ app.MapPost("v1/album/info", async (IAlbumRepository repo, AlbumFilterViewModel 
     if (albumFilter != null)
     {
         if (!string.IsNullOrEmpty(albumFilter.Artist))
-        {
             predicate = a => a.Artist.ToLowerInvariant() == albumFilter.Artist.ToLowerInvariant();
-        }
-
+        
         if (!string.IsNullOrEmpty(albumFilter.Title))
-        {
             predicate = predicate + (a => a.Title.ToLowerInvariant() == albumFilter.Title.ToLowerInvariant());
-        }
 
         if (albumFilter.Year != null)
-        {
             predicate = predicate + (a => a.Year == albumFilter.Year);
-        }
     }
 
     IEnumerable<Album>? result = predicate != null ? repo.Where(predicate) :
@@ -109,21 +103,24 @@ app.MapPost("v1/album", async (IAlbumRepository repo, AlbumViewModel albumViewMo
 .Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
-  async (IAlbumRepository repo, AlbumViewModel albumViewModel, Guid id) =>
+  async (IAlbumRepository repo, AlbumUpdateViewModel albumViewModel, Guid id) =>
   {
-      albumViewModel.Validate();
-
-      if (!albumViewModel.IsValid)
-          return Results.BadRequest();
-
       Album? album = await repo.GetByIdAsync(id);
 
       if (album is null)
           return Results.NotFound();
 
-      album.Title = albumViewModel.Title;
-      album.Artist = albumViewModel.Artist;
-      album.Year = albumViewModel.Year;
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Title))
+        album.Title = albumViewModel.Title;
+      
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Artist))
+        album.Artist = albumViewModel?.Artist;
+      
+      if(albumViewModel?.Year is not null and not 0)
+        album.Year = albumViewModel.Year.Value;
+
+      if(albumViewModel?.TrackList is not null && albumViewModel.TrackList.Count != 0)
+        album.Tracklist = albumViewModel.TrackList;
 
       repo.Update(album);
 

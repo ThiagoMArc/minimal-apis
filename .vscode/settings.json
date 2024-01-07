@@ -1,3 +1,6 @@
 {
-    "dotnet.defaultSolution": "Minimal.Favourite.Albums.sln"
+    "dotnet.defaultSolution": "Minimal.Favourite.Albums.sln",
+    "files.exclude": {
+        "**/app.db": true
+    }
 }

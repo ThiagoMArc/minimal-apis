@@ -1,6 +1,8 @@
 {
     "dotnet.defaultSolution": "Minimal.Favourite.Albums.sln",
     "files.exclude": {
-        "**/app.db": true
+        "**/app.db": true,
+        "**/app.db-*":true,
+        "**/Migrations/":true
     }
 }

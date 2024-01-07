@@ -15,4 +15,7 @@ public class Album
 
     [BsonElement("year")]
     public int Year {get; set;}
+
+    [BsonElement("tracklist")]
+    public List<string> Tracklist { get; set; }
 }

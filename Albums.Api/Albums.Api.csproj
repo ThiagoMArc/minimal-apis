@@ -13,4 +13,9 @@
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
   </ItemGroup>
 
+  <ItemGroup>
+     <Compile Remove="Migrations\**" />
+     <Content Remove="Migrations\**" />
+  </ItemGroup>
+
 </Project>

@@ -67,9 +67,7 @@ app.MapPost("v1/album/infos", async (IAlbumRepository repo, [FromBody]AlbumFilte
     if (albumFilter != null)
     {
         if (!string.IsNullOrEmpty(albumFilter.Artist))
-        {
             filter = builder.Regex("Artist", new Regex($"^{albumFilter.Artist}$", RegexOptions.IgnoreCase));
-        }
 
         if (!string.IsNullOrEmpty(albumFilter.Title))
         {
@@ -118,21 +116,24 @@ app.MapPost("v1/album", async (IAlbumRepository repo, [FromBody] AlbumViewModel 
 .Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
-  async (IAlbumRepository repo, [FromBody] AlbumViewModel albumViewModel, string id) =>
+  async (IAlbumRepository repo, [FromBody] AlbumUpdateViewModel albumViewModel, string id) =>
   {
-      albumViewModel.Validate();
-
-      if (!albumViewModel.IsValid)
-          return Results.BadRequest();
-
       Album? album = await repo.GetById(id);
 
       if (album is null)
           return Results.NotFound();
 
-      album.Title = albumViewModel.Title;
-      album.Artist = albumViewModel.Artist;
-      album.Year = albumViewModel.Year;
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Title))
+        album.Title = albumViewModel.Title;
+      
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Artist))
+        album.Artist = albumViewModel?.Artist;
+      
+      if(albumViewModel?.Year is not null and not 0)
+        album.Year = albumViewModel.Year.Value;
+
+      if(albumViewModel?.TrackList is not null && albumViewModel.TrackList.Count != 0)
+        album.Tracklist = albumViewModel.TrackList;
 
       await repo.Update(id, album); 
       

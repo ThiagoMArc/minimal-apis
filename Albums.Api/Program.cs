@@ -109,22 +109,24 @@ app.MapPost("v1/album", async (IAlbumRepository repo, AlbumViewModel albumViewMo
 .Produces<Album>(StatusCodes.Status201Created);
 
 app.MapPut("v1/album/{id}",
-  async (IAlbumRepository repo, AlbumViewModel albumViewModel, Guid id) =>
+  async (IAlbumRepository repo, AlbumUpdateViewModel albumViewModel, Guid id) =>
   {
-      albumViewModel.Validate();
-
-      if (!albumViewModel.IsValid)
-          return Results.BadRequest();
-
       Album? album = await repo.GetByIdAsync(id);
 
       if (album is null)
           return Results.NotFound();
 
-      album.Title = albumViewModel.Title;
-      album.Artist = albumViewModel.Artist;
-      album.Year = albumViewModel.Year;
-      album.Tracklist = albumViewModel.TrackList;
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Title))
+        album.Title = albumViewModel.Title;
+      
+      if(!string.IsNullOrWhiteSpace(albumViewModel.Artist))
+        album.Artist = albumViewModel?.Artist;
+      
+      if(albumViewModel?.Year is not null and not 0)
+        album.Year = albumViewModel.Year.Value;
+
+      if(albumViewModel?.TrackList is not null && albumViewModel.TrackList.Count != 0)
+        album.Tracklist = albumViewModel.TrackList;
 
       repo.Update(album);
 

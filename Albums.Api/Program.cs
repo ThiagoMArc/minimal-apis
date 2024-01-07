@@ -62,19 +62,16 @@ app.MapPost("v1/album/info", async (IAlbumRepository repo, AlbumFilterViewModel 
     if (albumFilter != null)
     {
         if (!string.IsNullOrEmpty(albumFilter.Artist))
-        {
             predicate = a => a.Artist.ToLowerInvariant() == albumFilter.Artist.ToLowerInvariant();
-        }
+        
 
         if (!string.IsNullOrEmpty(albumFilter.Title))
-        {
             predicate = predicate + (a => a.Title.ToLowerInvariant() == albumFilter.Title.ToLowerInvariant());
-        }
+        
 
         if (albumFilter.Year != null)
-        {
             predicate = predicate + (a => a.Year == albumFilter.Year);
-        }
+        
     }
 
     IEnumerable<Album>? result = predicate != null ? repo.Where(predicate) :

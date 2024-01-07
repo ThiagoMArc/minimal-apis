@@ -13,8 +13,8 @@ namespace Albums.Api.Utils
 		public PagedList(List<T> items, int count, int pageNumber, int pageSize)
 		{
 			TotalCount = count;
-			PageSize = pageSize;
-			CurrentPage = pageNumber;
+			PageSize = pageSize < 1 ? 5 : pageSize;
+			CurrentPage = pageNumber < 1 ? 1 : pageNumber;
 			TotalPages = (int)Math.Ceiling(count / (double)pageSize);
 
 			AddRange(items);

@@ -1,4 +1,8 @@
 using Albums.Api.Data;
+using Albums.Api.ViewModels;
+using Albums.Api.ViewModels.Album;
+using FluentValidation;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 namespace Albums.Api.Configuration;
 public static class DependencyInjectionConfig
@@ -10,6 +14,8 @@ public static class DependencyInjectionConfig
         InjectRepositories(builder);
         AddDatabaseDeveloperPageExceptionFilter(builder);
         ConfigureSwagger(builder);
+        RegisterValidators(builder);
+        AddFluentAutoValidation(builder);
 
         return builder.Services;
     }
@@ -38,5 +44,15 @@ public static class DependencyInjectionConfig
     {
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+    }
+
+    public static void RegisterValidators(WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<IValidator<AlbumViewModel>, AlbumViewModelValidator>();
+    }
+
+    public static void AddFluentAutoValidation(WebApplicationBuilder builder)
+    {
+        builder.Services.AddFluentValidationAutoValidation();
     }
 }

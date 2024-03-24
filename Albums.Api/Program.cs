@@ -3,6 +3,7 @@ using Albums.Api.Data;
 using Albums.Api.Models;
 using Albums.Api.Utils;
 using Albums.Api.ViewModels;
+using SharpGrip.FluentValidation.AutoValidation.Endpoints.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,9 +86,6 @@ app.MapPost("v1/album/info", async (IAlbumRepository repo, AlbumFilterViewModel 
 
 app.MapPost("v1/album", async (IAlbumRepository repo, AlbumViewModel albumViewModel) =>
 {
-    if (!albumViewModel.IsValid)
-        return Results.BadRequest(albumViewModel.Notifications);
-
     Album album = albumViewModel.ToEntity();
 
     repo.Add(album);
@@ -95,6 +93,7 @@ app.MapPost("v1/album", async (IAlbumRepository repo, AlbumViewModel albumViewMo
 
     return Results.Created($"v1/album/{album.Id}", new Result(true, "Registro criado com sucesso", album));
 })
+.AddFluentValidationAutoValidation()
 .WithName("CreateAlbum")
 .WithOpenApi(operation => new(operation)
 {

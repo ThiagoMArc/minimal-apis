@@ -1,14 +1,7 @@
 namespace Albums.Api.Models;
-public class Result
+public class Result(bool success, string message, object data)
 {
-    public Result(bool success, string message, object data)
-    {
-        Success = success;
-        Message = message;
-        Data = data;
-    }
-
-    public bool Success { get; private set; }
-    public string Message { get; private set; }
-    public object Data { get; private set; }
+    public bool Success { get; private set; } = success;
+    public string Message { get; private set; } = message;
+    public object Data { get; private set; } = data;
 }

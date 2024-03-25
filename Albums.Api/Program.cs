@@ -109,17 +109,10 @@ app.MapPut("v1/album/{id}",
       if (album is null)
           return Results.NotFound();
 
-      if(!string.IsNullOrWhiteSpace(albumViewModel.Title))
-        album.Title = albumViewModel.Title;
-      
-      if(!string.IsNullOrWhiteSpace(albumViewModel.Artist))
-        album.Artist = albumViewModel?.Artist;
-      
-      if(albumViewModel?.Year is not null and not 0)
-        album.Year = albumViewModel.Year.Value;
-
-      if(albumViewModel?.TrackList is not null && albumViewModel.TrackList.Count != 0)
-        album.Tracklist = albumViewModel.TrackList;
+       album.Title = albumViewModel.Title;
+       album.Artist = albumViewModel?.Artist;
+       album.Year = albumViewModel.Year.Value;
+       album.Tracklist = albumViewModel.TrackList;
 
       repo.Update(album);
 
@@ -127,6 +120,7 @@ app.MapPut("v1/album/{id}",
 
       return Results.Ok(new Result(true, "Registro atualizado com sucesso", album));
   })
+.AddFluentValidationAutoValidation()
 .WithName("UpdateAlbum")
 .WithOpenApi(operation => new(operation)
 {

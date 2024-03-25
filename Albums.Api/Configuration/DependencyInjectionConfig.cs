@@ -49,6 +49,7 @@ public static class DependencyInjectionConfig
     public static void RegisterValidators(WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IValidator<AlbumViewModel>, AlbumViewModelValidator>();
+        builder.Services.AddScoped<IValidator<AlbumUpdateViewModel>, AlbumUpdateViewModelValidator>();
     }
 
     public static void AddFluentAutoValidation(WebApplicationBuilder builder)
